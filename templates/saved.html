@@ -1,0 +1,24 @@
+{% from "macros.html" import render_post with context %}
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>{{header}}</h1>
+
+<form method="GET">
+    <label for="form-days">Filter by subreddit</label>
+    <input id="form-days" name="sr"
+        {% if subreddit %} value={{subreddit}} {% endif %} />
+    <br />
+    <button>Submit</button>
+</form>
+
+<p>Showing {{posts|length}} posts</p>
+
+<div>
+{% for post in posts %}
+    {{render_post(post)}}
+    <br />
+{% endfor %}
+</div>
+
+{% endblock %}

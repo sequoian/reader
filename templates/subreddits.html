@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Subreddits</h1>
+<div>
+{% for subreddit in subreddits %}
+    <div>
+        <span>{{'⭐' if subreddit['favorite'] else ''}}<a href='/r/{{subreddit["name"]}}'>{{subreddit['name']}}</a></span>
+    </div>
+{% endfor %}
+</div>
+
+{% endblock %}

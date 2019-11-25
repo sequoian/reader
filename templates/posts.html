@@ -1,0 +1,36 @@
+{% from "macros.html" import render_post with context %}
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>r/{{header}}</h1>
+
+<form method="GET">
+    <label for="form-days">Max age of posts (days)</label>
+    <input id="form-days"type="number" name="days" value={{days}} />
+    <br />
+    <label for="form-limit">Max posts to display</label>
+    <input id="form-limit" type="number" name="limit" value={{limit}} />
+    <br />
+    <input id='form-unread-hidden' type='hidden' name="unread" value="0">
+    <input id="form-unread" type="checkbox" name="unread" value="1"  
+        {% if unread|int %} checked {% endif %} />   
+    <label for="form-unread">Show unread posts</label>
+    <br />
+    <input id='form-ignore-hidden' type='hidden' name="ignore" value="0">
+    <input id="form-ignore" type="checkbox" name="ignore" value="1" 
+        {% if ignore|int %} checked {% endif %}/>
+    <label for="form-ignore">Exclude ignored subreddits</label>
+    <br />
+    <button>Submit</button>
+</form>
+
+<p>Showing {{posts|length}} posts</p>
+
+<div>
+{% for post in posts %}
+    {{render_post(post)}}
+    <br />
+{% endfor %}
+</div>
+
+{% endblock %}

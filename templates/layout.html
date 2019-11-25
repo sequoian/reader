@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+    <title>Reddit Reader</title>
+  </head>
+  <body>
+    <nav>
+        <a href="/">Home</a> - 
+        <a href="/subreddits">Subreddits</a> - 
+        <a href="/saved">Saved</a> - 
+        <a href="/loved">Loved</a>
+    </nav>
+    <div id="content">{% block content %}{% endblock %}</div>
+    <script type=text/javascript src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script type=text/javascript src="{{ url_for('static', filename='reader.js') }}"></script>
+  </body>
+</html>
