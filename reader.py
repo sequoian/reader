@@ -1,15 +1,19 @@
-import sqlite3
+"""
+Flask routes for the reader website
+"""
 from urllib.parse import urlsplit
 from flask import Flask, render_template, request, jsonify
 from database import Database
 
 app = Flask(__name__)
 
-# Routes
+
+# Web Page Routes
 
 @app.route('/')
 @app.route('/r/<subreddit>')
-def posts(subreddit=None):
+def submissions(subreddit=None):
+    """Display submissions from r/all or specific subreddit"""
     # Get named parameters from url
     days = request.args.get('days')
     limit = request.args.get('limit')
@@ -18,9 +22,9 @@ def posts(subreddit=None):
 
     # Transform and validate parameters
     limit = int(limit) if limit else 200
-    unread = 1 if unread == None or unread == '1' else 0
+    unread = 1 if unread is None or unread == '1' else 0
     days = int(days) if days else 10000 if subreddit else 7
-    ignore = 1 if ignore == None or ignore == '1' else 0
+    ignore = 1 if ignore is None or ignore == '1' else 0
 
     # Get posts from database
     with Database() as db:
@@ -38,8 +42,8 @@ def posts(subreddit=None):
     return render_template(
         'posts.html',
         header=subreddit or 'all',
-        posts=posts, 
-        urlsplit=urlsplit, 
+        posts=posts,
+        urlsplit=urlsplit,
         three_digits=three_digits,
         days=days,
         limit=limit,
@@ -50,6 +54,7 @@ def posts(subreddit=None):
 
 @app.route('/saved')
 def saved():
+    """Show all saved posts"""
     subreddit = request.args.get('sr')
     with Database() as db:
         if subreddit:
@@ -69,6 +74,7 @@ def saved():
 
 @app.route('/loved')
 def loved():
+    """Show all loved posts"""
     subreddit = request.args.get('sr')
     with Database() as db:
         if subreddit:
@@ -88,17 +94,21 @@ def loved():
 
 @app.route('/subreddits')
 def subreddits():
+    """Show all subreddits"""
     with Database() as db:
-        subreddits = db.get_subreddits()
-    
+        subreddit_list = db.get_subreddits()
+
     return render_template(
         'subreddits.html',
-        subreddits=subreddits
+        subreddits=subreddit_list
     )
 
 
+# RESTful API Routes
+
 @app.route('/readit/<uid>', methods=['POST'])
 def readit(uid):
+    """Toggle read_it status on submission"""
     success = False
     with Database() as db:
         if db.toggle_readit(uid):
@@ -107,8 +117,10 @@ def readit(uid):
 
     return jsonify(success=success)
 
+
 @app.route('/saveit/<uid>', methods=['POST'])
 def saveit(uid):
+    """Toggle saved status on submission"""
     success = False
     with Database() as db:
         if db.toggle_saved(uid):
@@ -117,8 +129,10 @@ def saveit(uid):
 
     return jsonify(success=success)
 
+
 @app.route('/loveit/<uid>', methods=['POST'])
 def loveit(uid):
+    """Toggle loved status on submission"""
     success = False
     with Database() as db:
         if db.toggle_loved(uid):
@@ -127,16 +141,14 @@ def loveit(uid):
 
     return jsonify(success=success)
 
+
 @app.after_request
-def add_header(r):
-    """
-    Add headers to both force latest IE rendering engine or Chrome Frame,
-    and also to cache the rendered page for 10 minutes.
-    """
-    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    r.headers["Pragma"] = "no-cache"
-    r.headers["Expires"] = "0"
-    return r
+def add_header(req):
+    """Forces browser to refesh page after each page load"""
+    req.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    req.headers["Pragma"] = "no-cache"
+    req.headers["Expires"] = "0"
+    return req
 
 
 # Helpers
@@ -148,7 +160,6 @@ def three_digits(num):
     """
     if int(num) >= 1000:
         thou, hund = divmod(int(num), 1000)
-        hund, tens = divmod(hund, 100)
+        hund, _ = divmod(hund, 100)
         return "{}.{}K".format(thou, hund)
-    else:
-        return str(num)
+    return str(num)

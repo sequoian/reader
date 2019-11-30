@@ -1,13 +1,14 @@
-import praw
-import sqlite3
+"""Populates database with data from PRAW API"""
 import argparse
 import json
 from threading import Thread
 from time import sleep
+import praw
 from database import Database
 
 
 class App:
+    """Populates database with data from PRAW API"""
     def __init__(self):
         # Read credentials from file
         with open('creds.json') as json_file:
@@ -23,31 +24,31 @@ class App:
         # Connect to database
         self.db = Database()
 
+        # Used for progress bar
         self.postcount = 0
         self.done = False
 
-    def add_top_from_subreddit(self, sr, limit=None, time='all'):
+    def add_top_from_subreddit(self, sub, limit=None, time='all'):
         """Adds top posts from a specific subreddit to the database"""
-
         # Add subreddit
-        subreddit = self.reddit.subreddit(sr)
+        subreddit = self.reddit.subreddit(sub)
         self.db.add_subreddit(subreddit)
 
         # Add submissions
         for submission in subreddit.top(limit=limit, time_filter=time):
             self.db.add_post(submission, subreddit)
             self.postcount += 1
-        
+
         # commit additions to database
         self.db.commit()
-    
-    def add_top(self, sr, limit=None, time='all'):
+
+    def add_top(self, sub, limit=None, time='all'):
         """
-        Adds top posts from any subreddit. Slower than add_top_from_subreddit(), 
+        Adds top posts from any subreddit. Slower than add_top_from_subreddit(),
         and is intended only for r/all and r/popular.
         """
         # Add subreddit
-        subreddit = self.reddit.subreddit(sr)
+        subreddit = self.reddit.subreddit(sub)
 
         # Add submissions
         for submission in subreddit.top(limit=limit, time_filter=time):
@@ -55,30 +56,34 @@ class App:
             self.db.add_subreddit(postsubreddit)
             self.db.add_post(submission, postsubreddit)
             self.postcount += 1
-            
+
         self.db.commit()
 
     def print_progress(self):
+        """Prints progress on console"""
         def message():
             return 'Posts added: {}'.format(self.postcount)
-        
-        while self.done == False:
+
+        while not self.done:
             print(message(), end='\r')
             sleep(0.25)
-        
+
         print(message())
 
     def run(self):
+        """Run the command line app"""
         # Parse arguments
         parser = argparse.ArgumentParser(description="Reddit database")
         parser.add_argument('subreddit', type=str, help='The subreddit to search')
-        parser.add_argument('limit', type=int, default=1000, nargs='?', help="[optional] Maximum submissions to get (max 1000)")
-        parser.add_argument('time', type=str, default='all', nargs='?', help="[optional] Top of x time (hour, day, week, month, year, or all)")
+        parser.add_argument('limit', type=int, default=1000, nargs='?',
+                            help="[optional] Maximum submissions to get (max 1000)")
+        parser.add_argument('time', type=str, default='all', nargs='?',
+                            help="[optional] Top of x time (hour, day, week, month, year, or all)")
         args = parser.parse_args()
 
         # Let the user know what operation is being performed
         print("Adding the top posts from /r/{} to database.".format(args.subreddit))
-        timestr = "all time" if args.time == 'all' else "the {}".format(args.time) 
+        timestr = "all time" if args.time == 'all' else "the {}".format(args.time)
         print("Limited to the top {} posts of {}.".format(args.limit, timestr))
 
         # Start progress bar thread
@@ -96,7 +101,7 @@ class App:
         progress.join()
         self.db.close()
         print('Done')
-         
+
 
 if __name__ == "__main__":
     app = App()
