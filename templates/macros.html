@@ -1,18 +1,18 @@
 {% macro render_post(post) %}
 <div>
     <div>
-        <a href={{post['url']}}>{{post['title']}}</a>
+        <a class="reddit-link" target="_blank" href={{post['url']}}>{{post['title']}}</a>
         <span>({{urlsplit(post['url'])[1]}})</span>
     </div>
     <div>
         <span>{{three_digits(post['score'])}}</span>
-        <a href="https://old.reddit.com{{post['comments_link']}}">{{post['num_comments']}} Comments</a>
+        <a target="_blank" href="https://old.reddit.com{{post['comments_link']}}">{{post['num_comments']}} Comments</a>
         <span>r/{{post['sr_name']}}</span>
     </div>
 </div>
 <div>
     <button
-        class="{{'read-it' if post['read_it'] else ''}}"
+        class="{{'read-it' if post['read_it'] else 'not-read'}}"
         onclick="readit('{{post["id"]}}', $(this))">Read it</button>
     <button
         class="{{'saved' if post['saved'] else ''}}"

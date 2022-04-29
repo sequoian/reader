@@ -1,0 +1,32 @@
+{% from "macros.html" import render_post with context %}
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Feed</h1>
+<form method="GET">
+    <label for="form-days">Filter by subreddit: </label> r/
+    <input id="form-days" name="sr" placeholder="all"
+        {% if subreddit %} value={{subreddit}} {% endif %} />
+    <br />
+    <label for="form-age">Max age of posts (days)</label>
+    <input id="form-age" name="days" type="number" placeholder="all time" />
+    <button>Submit</button>
+</form>
+
+<br />
+<button onclick="readAll()">Mark all as read</button>
+<br /><br /><br />
+
+
+<div id="feed">
+    {% for post in posts %}
+        {{render_post(post)}}
+        <br />
+    {% endfor %}
+</div>
+
+<br /><br />
+<button onclick="readAll()">Mark all as read</button>
+
+{% endblock %}

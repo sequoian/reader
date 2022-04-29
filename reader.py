@@ -51,6 +51,27 @@ def submissions(subreddit=None):
         ignore=ignore
     )
 
+@app.route('/feed')
+def feed():
+    """Show feed"""
+    subreddit = request.args.get('sr')
+    with Database() as db:
+        if subreddit:
+            try:
+                posts = db.get_posts_by_subreddit(subreddit, 10, False)
+            except ValueError:
+                # Subreddit does not exist
+                posts = []
+        else:
+            posts = db.get_posts_all(10, False)
+
+    return render_template(
+        'feed.html',
+        posts=posts,
+        subreddit=subreddit or '',
+        urlsplit=urlsplit,
+        three_digits=three_digits
+    )
 
 @app.route('/saved')
 def saved():

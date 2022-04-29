@@ -1,6 +1,7 @@
 function readit(id, self) {
     if (self.hasClass('read-it')) {
         self.removeClass('read-it')
+        self.addClass('not-read')
         $.post('/readit/' + id, function(data) {
             if (!data.success) {
                 self.addClass('read-it')
@@ -8,6 +9,7 @@ function readit(id, self) {
         })
     }
     else {
+        self.removeClass('not-read')
         self.addClass('read-it')
         $.post('/readit/' + id, function(data) {
             if (!data.success) {
@@ -63,3 +65,12 @@ $('form').submit(function() {
         $('#form-ignore-hidden').prop('disabled', true);
     }
 })
+
+function openAll() {
+    var links = $(".reddit-link").toArray();
+    links.forEach(link => window.open(link.href, "_blank"));
+}
+
+function readAll() {
+    var btns = $(".not-read").each((idx, btn) => btn.click());
+}
