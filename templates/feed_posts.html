@@ -1,0 +1,8 @@
+{% from "macros.html" import render_post with context %}
+
+<div>
+{% for post in posts %}
+    {{render_post(post)}}
+    <br />
+{% endfor %}
+</div>

@@ -4,9 +4,9 @@
 {% block content %}
 
 <h1>Feed</h1>
-<form method="GET">
-    <label for="form-days">Filter by subreddit: </label> r/
-    <input id="form-days" name="sr" placeholder="all"
+<form id="feed-form" method="POST">
+    <label for="form-subreddit">Filter by subreddit: </label> r/
+    <input id="form-subreddit" name="sr" placeholder="all"
         {% if subreddit %} value={{subreddit}} {% endif %} />
     <br />
     <label for="form-age">Max age of posts (days)</label>
@@ -15,7 +15,7 @@
 </form>
 
 <br />
-<button onclick="readAll()">Mark all as read</button>
+<button onclick="feedMore()">Mark all as read</button>
 <br /><br /><br />
 
 
@@ -27,6 +27,6 @@
 </div>
 
 <br /><br />
-<button onclick="readAll()">Mark all as read</button>
+<button onclick="feedMore()">Mark all as read</button>
 
 {% endblock %}

@@ -71,6 +71,19 @@ function openAll() {
     links.forEach(link => window.open(link.href, "_blank"));
 }
 
-function readAll() {
-    var btns = $(".not-read").each((idx, btn) => btn.click());
+$("#feed-form").submit((e) => {
+    feedMore();
+    e.preventDefault();
+})
+
+function feedMore() {
+    // var btns = $(".not-read").each((idx, btn) => btn.click());
+    $("#feed").empty();
+    $.post("/feedmore", {
+            subreddit: $("#form-subreddit").prop('value'),
+            max_age: $("#form-age").prop('value')
+        },
+    ).done((data) => {
+        document.getElementById('feed').innerHTML = data.html;
+})
 }

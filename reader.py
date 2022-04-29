@@ -127,6 +127,34 @@ def subreddits():
 
 # RESTful API Routes
 
+@app.route('/feedmore', methods=['POST'])
+def feedmore():
+    """Toggle read_it status on submission"""
+    subreddit = request.form['subreddit']
+    max_age = request.form['max_age']
+    max_age = int(max_age) if max_age else 10000
+    success = False
+
+    with Database() as db:
+        if subreddit:
+            try:
+                posts = db.get_posts_by_subreddit(subreddit, 10, False, max_age)
+            except ValueError:
+                # Subreddit does not exist
+                posts = []
+        else:
+            posts = db.get_posts_all(10, False, max_age)
+
+    return jsonify(
+        success=success,
+        html=render_template(
+            'feed_posts.html',
+            posts=posts,
+            urlsplit=urlsplit,
+            three_digits=three_digits
+        )
+    )
+
 @app.route('/readit/<uid>', methods=['POST'])
 def readit(uid):
     """Toggle read_it status on submission"""
