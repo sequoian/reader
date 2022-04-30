@@ -76,14 +76,32 @@ $("#feed-form").submit((e) => {
     e.preventDefault();
 })
 
+function readAll() {
+    var ids = [];
+    $('.post').each((idx, value) => {
+        ids.push(value.id);
+    })
+
+    $.post("/readall", {
+        posts: ids
+    }).done((data) => {
+        if (!data.success) {
+            console.log('failed');
+            return;
+        }
+    }).done(() => {
+        feedMore();
+    })
+}
+
 function feedMore() {
     // var btns = $(".not-read").each((idx, btn) => btn.click());
-    $("#feed").empty();
     $.post("/feedmore", {
             subreddit: $("#form-subreddit").prop('value'),
             max_age: $("#form-age").prop('value')
         },
     ).done((data) => {
+        $("#feed").empty();
         document.getElementById('feed').innerHTML = data.html;
 })
 }

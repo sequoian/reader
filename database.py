@@ -285,3 +285,17 @@ class Database:
             return True
         else:
             return False
+
+    def read_multi(self, ids):
+        print(len(ids))
+        print(','.join('?'*len(ids)))
+        self.cursor.execute(
+            "UPDATE submissions SET read_it = 1 WHERE id IN ({all})".format(
+                all=','.join(['?']*len(ids))), ids
+        )
+
+        # Return results of the update
+        if self.cursor.rowcount > 0:
+            return True
+        else:
+            return False

@@ -1,12 +1,14 @@
 """
 Flask routes for the reader website
 """
+from distutils.log import debug
 from urllib.parse import urlsplit
 from flask import Flask, render_template, request, jsonify
 from database import Database
 
 app = Flask(__name__)
 
+FEED_POST_COUNT = 5
 
 # Web Page Routes
 
@@ -58,12 +60,12 @@ def feed():
     with Database() as db:
         if subreddit:
             try:
-                posts = db.get_posts_by_subreddit(subreddit, 10, False)
+                posts = db.get_posts_by_subreddit(subreddit, FEED_POST_COUNT, False)
             except ValueError:
                 # Subreddit does not exist
                 posts = []
         else:
-            posts = db.get_posts_all(10, False)
+            posts = db.get_posts_all(FEED_POST_COUNT, False)
 
     return render_template(
         'feed.html',
@@ -138,12 +140,12 @@ def feedmore():
     with Database() as db:
         if subreddit:
             try:
-                posts = db.get_posts_by_subreddit(subreddit, 10, False, max_age)
+                posts = db.get_posts_by_subreddit(subreddit, FEED_POST_COUNT, False, max_age)
             except ValueError:
                 # Subreddit does not exist
                 posts = []
         else:
-            posts = db.get_posts_all(10, False, max_age)
+            posts = db.get_posts_all(FEED_POST_COUNT, False, max_age)
 
     return jsonify(
         success=success,
@@ -154,6 +156,18 @@ def feedmore():
             three_digits=three_digits
         )
     )
+
+@app.route('/readall', methods=['POST'])
+def readall():
+    posts = request.form.getlist('posts[]')
+    print(posts)
+    success = False
+    with Database() as db:
+        if db.read_multi(posts):
+            db.commit()
+            success = True
+
+    return jsonify(success=success)
 
 @app.route('/readit/<uid>', methods=['POST'])
 def readit(uid):
